@@ -30,9 +30,17 @@ export class AuthDataSource {
                 console.error('Invoke error:', invokeError);
 
                 // Try to extract the error message from the response body if it's a FunctionsHttpError
-                if (invokeError.context?.json) {
-                    const errorMsg = invokeError.context.json.error || invokeError.context.json.message;
-                    if (errorMsg) return { success: false, error: errorMsg };
+                try {
+                    if (invokeError.context instanceof Response) {
+                        const errorJson = await invokeError.context.clone().json();
+                        const errorMsg = errorJson.error || errorJson.message;
+                        if (errorMsg) return { success: false, error: errorMsg };
+                    } else if (invokeError.context?.json) {
+                        const errorMsg = invokeError.context.json.error || invokeError.context.json.message;
+                        if (errorMsg) return { success: false, error: errorMsg };
+                    }
+                } catch (e) {
+                    console.error('Failed to parse error response:', e);
                 }
 
                 return { success: false, error: 'Error al conectar con el servidor de autenticación' };

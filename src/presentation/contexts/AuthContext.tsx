@@ -87,6 +87,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [session, user, loading, isAuthenticated]);
 
     const loadingUserRef = useRef<string | null>(null);
+    const lastActivityRef = useRef<number>(Date.now());
+
+    // Monitor for user inactivity
+    useEffect(() => {
+        const handleActivity = () => {
+            lastActivityRef.current = Date.now();
+        };
+
+        // Attach event listeners for user activity
+        window.addEventListener('mousemove', handleActivity);
+        window.addEventListener('keydown', handleActivity);
+        window.addEventListener('scroll', handleActivity);
+        window.addEventListener('click', handleActivity);
+        window.addEventListener('touchstart', handleActivity);
+
+        return () => {
+            window.removeEventListener('mousemove', handleActivity);
+            window.removeEventListener('keydown', handleActivity);
+            window.removeEventListener('scroll', handleActivity);
+            window.removeEventListener('click', handleActivity);
+            window.removeEventListener('touchstart', handleActivity);
+        };
+    }, []);
+
+    // Check inactivity interval
+    useEffect(() => {
+        const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+
+        const intervalId = setInterval(() => {
+            if (isAuthenticated) {
+                const now = Date.now();
+                if (now - lastActivityRef.current >= INACTIVITY_TIMEOUT_MS) {
+                    console.log('⏳ [V3.1] User inactive for 5 minutes. Logging out...');
+                    logout().then(() => {
+                        window.location.replace('/login?reason=timeout');
+                    });
+                }
+            }
+        }, 15000); // Check every 15 seconds
+
+        return () => clearInterval(intervalId);
+    }, [isAuthenticated]);
 
     useEffect(() => {
         checkSession();
