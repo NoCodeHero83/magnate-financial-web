@@ -57,7 +57,7 @@ const Login = () => {
   // [V3.1] Redirect logic with extra strict verification
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      console.log('🛡️ [V3.1_REDIRECT_DEBUG] Target: Dashboard. Auth state is TRUE.');
+
       navigate("/dashboard", { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate]);

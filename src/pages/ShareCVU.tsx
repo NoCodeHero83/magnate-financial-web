@@ -26,7 +26,10 @@ const ShareCVU = () => {
           .from('qr_codes')
           .select('qr_data')
           .eq('account_id', account.id)
-          .single();
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
         if (error) {
           console.error('Error supabase fetching QR:', error);

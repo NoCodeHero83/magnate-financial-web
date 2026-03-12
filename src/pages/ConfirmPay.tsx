@@ -17,7 +17,7 @@ const transactionDataSource = new TransactionDataSource();
 const ConfirmPay = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, account, refreshUser } = useAuth();
+  const { user, account, session, refreshUser } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [generatedOtp, setGeneratedOtp] = useState<string>('');
@@ -45,7 +45,11 @@ const ConfirmPay = () => {
         navigate("/success-pay", {
           state: {
             amount: result.amount,
-            recipient: transferData.recipient,
+            recipient: {
+              name: transferData.recipientName || transferData.recipient,
+              cuit: transferData.recipient,
+              type: "CBU/Alias"
+            },
             concept: transferData.concept,
             transactionId: result.reference_number || result.transaction_id,
             date: new Date(),
@@ -75,7 +79,7 @@ const ConfirmPay = () => {
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
             'Content-Type': 'application/json'
           }
         }

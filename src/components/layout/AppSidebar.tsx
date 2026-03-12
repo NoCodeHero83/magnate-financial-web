@@ -118,7 +118,7 @@ const AppSidebar = () => {
         />
         <button
           onClick={async () => {
-            console.log('🚪 [V3.1] Sidebar Logout Clicked');
+
             await logout();
             navigate("/login", { replace: true });
           }}

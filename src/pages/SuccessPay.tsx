@@ -3,8 +3,8 @@ import { CheckCircle, Share2, Home, Building2, Download, MessageCircle, Mail } f
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
 import { formatBalance } from "@/lib/formatters";
-import { useState } from "react";
-
+import { useState, useRef } from "react";
+import html2canvas from 'html2canvas';
 interface PaymentState {
   amount: string;
   recipient: {
@@ -20,12 +20,19 @@ const SuccessPay = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const receiptRef = useRef<HTMLDivElement>(null);
 
   // Get payment data from navigation state or use defaults
   const state = location.state as PaymentState | null;
+  const recipient = state?.recipient 
+    ? (typeof state.recipient === 'string' 
+      ? { name: state.recipient, cuit: state.recipient, type: "Destino" } 
+      : state.recipient)
+    : { name: "Café Buenos Aires", cuit: "30-71234567-9", type: "CUIT" };
+
   const paymentData = {
     amount: state?.amount || "4500.00",
-    recipient: state?.recipient || { name: "Café Buenos Aires", cuit: "30-71234567-9", type: "CUIT" },
+    recipient,
     transactionId: state?.transactionId || "MAG-88293-X",
     date: state?.date ? new Date(state.date) : new Date()
   };
@@ -52,19 +59,42 @@ const SuccessPay = () => {
   };
 
   const handleShare = async () => {
-    const shareData = {
-      title: "Comprobante de Pago - Magnate",
-      text: `Pago realizado a ${paymentData.recipient.name} por ${formatCurrencyLocal(paymentData.amount)}. ID: ${paymentData.transactionId}`,
-      url: window.location.href
-    };
+    if (!receiptRef.current) {
+      setShowShareMenu(true);
+      return;
+    }
 
-    if (navigator.share && navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.log("Share cancelled");
-      }
-    } else {
+    try {
+      // Small delay to ensure all CSS paints are completed before capture
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const canvas = await html2canvas(receiptRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2, // Better resolution
+        logging: false,
+        useCORS: true,
+      });
+      
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          setShowShareMenu(true);
+          return;
+        }
+        const file = new File([blob], `comprobante-${paymentData.transactionId}.png`, { type: 'image/png' });
+
+        const shareData = {
+          files: [file],
+          title: "Comprobante de Pago - Magnate",
+          text: `Pago realizado a ${paymentData.recipient.name} por ${formatCurrencyLocal(paymentData.amount)}. ID: ${paymentData.transactionId}`,
+        };
+
+        if (navigator.share && navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+        } else {
+          setShowShareMenu(true);
+        }
+      }, 'image/png');
+    } catch (err) {
       setShowShareMenu(true);
     }
   };
@@ -111,7 +141,7 @@ const SuccessPay = () => {
 
       {/* Receipt Card */}
       <div className="flex-1 px-6 pt-4">
-        <div className="bg-card rounded-2xl shadow-xl overflow-hidden max-w-md mx-auto border border-border">
+        <div ref={receiptRef} className="bg-card rounded-2xl shadow-xl overflow-hidden max-w-md mx-auto border border-border">
           {/* Amount Section */}
           <div className="p-6 text-center border-b border-border">
             <p className="text-sm text-muted-foreground mb-1 font-medium uppercase tracking-wider">Monto pagado</p>

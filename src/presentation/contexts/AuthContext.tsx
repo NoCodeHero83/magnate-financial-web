@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Si ya existe una suscripción activa para este usuario, no hacer nada
         if (realtimeSubscriptionRef.current) return;
 
-        console.log('🔗 [V3.1] Setting up realtime subscription for user:', userId);
+
         realtimeSubscriptionRef.current = supabase
             .channel(`public:users:id=eq.${userId}`)
             .on(
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 async (payload) => {
                     const newUser = payload.new as User;
                     if (newUser.verification_status === 'suspended') {
-                        console.log('🚫 [V3.1] User suspended via realtime update. Logging out...');
+
                         await logout();
                         window.location.replace('/login?reason=suspended');
                     }
@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Monitor state changes specifically for logout debugging
     useEffect(() => {
         if (session || user || !loading) {
-            console.log(`📊 [V3.1] State: session=${!!session}, user=${!!user}, loading=${loading} -> auth=${isAuthenticated}`);
+
         }
     }, [session, user, loading, isAuthenticated]);
 
@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 
                 const now = Date.now();
                 if (now - mostRecent >= INACTIVITY_TIMEOUT_MS) {
-                    console.log('⏳ [V3.1] User inactive for 5 minutes globally. Logging out...');
+
                     // Clear the interval to prevent multiple rapid triggers before logout completes
                     clearInterval(intervalId); 
                     
@@ -156,10 +156,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, currentSession) => {
-                console.log('🔐 [V3.1] Auth Event:', event, currentSession ? '(Session active)' : '(No session)');
+
 
                 if (event === 'SIGNED_OUT') {
-                    console.log('👋 [V3.1] SIGNED_OUT event triggered cleanup');
+
                     clearAllState();
                 } else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
                     setSession(currentSession);
@@ -176,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             subscription.unsubscribe();
             // ✅ Limpiar suscripción al desmontar
             if (realtimeSubscriptionRef.current) {
-                console.log('🔌 [V3.1] Cleaning up realtime subscription on unmount');
+
                 supabase.removeChannel(realtimeSubscriptionRef.current);
                 realtimeSubscriptionRef.current = null;
             }
@@ -184,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const clearAllState = () => {
-        console.log('🧹 [V3.1] Force-clearing all local auth state');
+
         setUser(null);
         setAccount(null);
         setSession(null);
@@ -202,7 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const checkSession = async () => {
         try {
-            console.log('🔍 [V3.1] Checking initial session...');
+
             setLoading(true);
             const { data: { session: currentSession }, error } = await supabase.auth.getSession();
 
@@ -212,10 +212,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             setSession(currentSession);
             if (currentSession?.user) {
-                console.log('📌 [V3.1] Found active session, loading user profile...');
+
                 loadUserData(currentSession.user.id);
             } else {
-                console.log('📌 [V3.1] No initial session found');
+
                 setLoading(false);
             }
         } catch (error) {
@@ -228,7 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (loadingUserRef.current === userId) return;
 
         loadingUserRef.current = userId;
-        console.log('👤 [V3.1] Loading profile for:', userId);
+
 
         try {
             // Wait for user profile with timeout
@@ -238,7 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             );
 
             const userData = await Promise.race([userPromise, timeoutPromise]) as User | null;
-            console.log('✅ [V3.1] User profile arrival:', !!userData);
+
 
             setUser(userData);
 
@@ -251,7 +251,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     return;
                 }
 
-                console.log('💳 [V3.1] Loading primary account...');
+
                 const accountData = await accountRepository.getPrimaryAccount(userId);
                 setAccount(accountData);
 
@@ -271,11 +271,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = async (email: string, password: string) => {
         try {
-            console.log('🔑 [V3.1] Login initiated:', email);
+
             const result = await loginUseCase.execute(email, password);
 
             if (result.success && result.user) {
-                console.log('✅ [V3.1] Login success');
+
                 return { success: true };
             }
             return { success: false, error: result.error };
@@ -286,7 +286,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const logout = async () => {
-        console.log('🚪 [V3.1] Manual logout sequence start');
+
         try {
             setLoading(true);
 
@@ -302,13 +302,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             );
 
             await Promise.race([signOutPromise, timeoutPromise]);
-            console.log('✅ [V3.1] Supabase signOut completed');
+
 
         } catch (error) {
             console.error('❌ [V3.1] Logout error:', error);
         } finally {
             clearAllState();
-            console.log('⌛ [V3.1] Logout sequence finished');
+
         }
     };
 

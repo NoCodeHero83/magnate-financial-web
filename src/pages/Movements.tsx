@@ -52,16 +52,8 @@ const Movements = () => {
         limit: 100,
         offset: 0
       });
-      console.log('📊 Movimientos RAW:', data);
-      if (data.length > 0) {
-        console.log('🔍 Primer movimiento sample:', {
-          id: data[0].transaction_id,
-          counterpart: data[0].counterpart_name,
-          payment_ref: data[0].payment_reference,
-          metadata: data[0].metadata,
-          concept: data[0].concept
-        });
-      }
+
+
       setMovements(data);
     } catch (error) {
       console.error("Error loading movements:", error);
@@ -168,7 +160,7 @@ const Movements = () => {
     try {
       const fullDetails = await transactionDataSource.getTransactionById(movement.transaction_id);
       if (fullDetails) {
-        console.log('🔍 Full Transaction Details:', fullDetails);
+
 
         // Determine the best name to show
         // Priority: internal counterpart_name > payment_reference (alias) > external_holder > ...
@@ -269,7 +261,7 @@ const Movements = () => {
               type: m.movement_type === 'income' ? 'income' : 'expense',
             }))}
             onTransactionClick={(t) => {
-              const movement = movementsInGroup.find(m => m.transaction_id === t.id);
+              const movement = movementsInGroup.find(m => (m.reference_number || m.transaction_id) === t.id);
               if (movement) handleTransactionClick(movement, dateLabel);
             }}
           />
