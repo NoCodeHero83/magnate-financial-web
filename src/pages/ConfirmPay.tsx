@@ -47,7 +47,7 @@ const ConfirmPay = () => {
             amount: result.amount,
             recipient: transferData.recipient,
             concept: transferData.concept,
-            transactionId: result.transaction_id || result.reference_number,
+            transactionId: result.reference_number || result.transaction_id,
             date: new Date(),
           },
         });
@@ -70,7 +70,6 @@ const ConfirmPay = () => {
 
   const invokeWorker = async () => {
     try {
-      console.log('🔄 Invocando worker...');
       const workerResponse = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notification-worker`,
         {
@@ -82,9 +81,8 @@ const ConfirmPay = () => {
         }
       );
       const workerResult = await workerResponse.json();
-      console.log('✅ Worker ejecutado:', workerResult);
     } catch (workerError) {
-      console.error('❌ Error invocando worker:', workerError);
+      console.error('Error invocando worker:', workerError);
     }
   };
 
@@ -102,7 +100,6 @@ const ConfirmPay = () => {
         );
         if (result.success && result.otp) {
           setGeneratedOtp(result.otp); // ✅ Guardar el OTP generado
-          console.log('🔐 Nuevo OTP generado:', result.otp);
 
           // ✅ Invocar worker después de encolar
           await invokeWorker();
@@ -122,7 +119,6 @@ const ConfirmPay = () => {
       );
       if (result.success && result.otp) {
         setGeneratedOtp(result.otp); // ✅ Guardar el OTP generado
-        console.log('🔐 OTP inicial generado:', result.otp);
 
         // ✅ Invocar worker después de encolar
         await invokeWorker();

@@ -91,8 +91,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Monitor for user inactivity
     useEffect(() => {
+        let throttleTimeout: NodeJS.Timeout | null = null;
+        
         const handleActivity = () => {
-            lastActivityRef.current = Date.now();
+            const now = Date.now();
+            lastActivityRef.current = now;
+            
+            // Throttle localStorage writes to prevent performance issues
+            if (!throttleTimeout) {
+                throttleTimeout = setTimeout(() => {
+                    localStorage.setItem('magnate_last_activity', now.toString());
+                    throttleTimeout = null;
+                }, 2000); // Write at most every 2 seconds
+            }
         };
 
         // Attach event listeners for user activity
@@ -103,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         window.addEventListener('touchstart', handleActivity);
 
         return () => {
+            if (throttleTimeout) clearTimeout(throttleTimeout);
             window.removeEventListener('mousemove', handleActivity);
             window.removeEventListener('keydown', handleActivity);
             window.removeEventListener('scroll', handleActivity);
@@ -117,10 +129,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const intervalId = setInterval(() => {
             if (isAuthenticated) {
+                // Get the most recent activity across all tabs
+                const storedActivity = parseInt(localStorage.getItem('magnate_last_activity') || '0', 10);
+                const mostRecent = Math.max(lastActivityRef.current, storedActivity);
+                
                 const now = Date.now();
-                if (now - lastActivityRef.current >= INACTIVITY_TIMEOUT_MS) {
-                    console.log('⏳ [V3.1] User inactive for 5 minutes. Logging out...');
-                    logout().then(() => {
+                if (now - mostRecent >= INACTIVITY_TIMEOUT_MS) {
+                    console.log('⏳ [V3.1] User inactive for 5 minutes globally. Logging out...');
+                    // Clear the interval to prevent multiple rapid triggers before logout completes
+                    clearInterval(intervalId); 
+                    
+                    // We use the logout case internally, but we can also trigger a direct timeout response
+                    logoutUseCase.execute().catch(console.error).finally(() => {
+                        clearAllState();
                         window.location.replace('/login?reason=timeout');
                     });
                 }

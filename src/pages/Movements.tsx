@@ -152,7 +152,7 @@ const Movements = () => {
   const handleTransactionClick = async (movement: AccountMovement, dateGroup: string) => {
     // 1. Set initial data from the view
     const initialDetails: TransactionDetails = {
-      id: movement.transaction_id,
+      id: movement.reference_number || movement.transaction_id,
       icon: getTransactionIcon(movement),
       name: movement.counterpart_name || movement.payment_reference || movement.transaction_type_name,
       category: movement.transaction_type_name,
@@ -260,7 +260,7 @@ const Movements = () => {
             key={dateLabel}
             dateLabel={dateLabel}
             transactions={movementsInGroup.map(m => ({
-              id: m.transaction_id,
+              id: m.reference_number || m.transaction_id,
               icon: getTransactionIcon(m),
               name: m.counterpart_name || m.payment_reference || m.transaction_type_name,
               category: m.transaction_type_name,

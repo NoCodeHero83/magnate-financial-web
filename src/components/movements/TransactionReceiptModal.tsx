@@ -31,7 +31,7 @@ const TransactionReceiptModal = ({ transaction, onClose }: TransactionReceiptMod
   if (!transaction) return null;
 
   const isIncome = transaction.type === "income";
-  const transactionId = `MAG-${transaction.id.slice(0, 8).toUpperCase()}-${isIncome ? 'I' : 'E'}`;
+  const transactionId = transaction.id;
   const cleanAmount = transaction.amount.replace(/[+-]/g, '');
 
   const handleDownload = async () => {

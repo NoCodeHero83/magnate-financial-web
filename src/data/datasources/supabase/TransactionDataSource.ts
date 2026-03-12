@@ -243,14 +243,13 @@ export class TransactionDataSource {
             // Generar OTP de 6 dígitos
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-            console.log('🔐 OTP generado:', otp);
-
             // ✅ Función correcta: enqueue_notification (sin __)
             const { error } = await supabase.rpc('enqueue_notification', {
                 p_user_id: userId,
                 p_notification_type: 'transfer_otp',
                 p_data: {
                     amount: amount,
+                    amount_formatted: `$ ${amount.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                     recipient_name: recipientName,
                     otp_code: otp,
                 },
