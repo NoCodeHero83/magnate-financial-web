@@ -29,7 +29,7 @@ const BalanceCard = () => {
 
       <div className="relative z-10 flex flex-col items-center">
         <p className="text-muted-foreground text-sm font-semibold uppercase tracking-widest mb-3 opacity-80">
-          Saldo Disponible
+          Tu Saldo Disponible
         </p>
 
         <div className="flex items-center gap-4">
