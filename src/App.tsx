@@ -9,7 +9,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import SplashScreen from "./pages/SplashScreen";
 import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Transfer from "./pages/Transfer";
@@ -43,7 +42,6 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/splash" element={<SplashScreen />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/about" element={<About />} />

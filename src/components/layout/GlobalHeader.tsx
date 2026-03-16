@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
 import UserAvatar from "./UserAvatar";
 import { useSidebar } from "@/contexts/SidebarContext";
+import { useAuth } from "@/presentation/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 interface GlobalHeaderProps {
@@ -12,6 +13,7 @@ interface GlobalHeaderProps {
   showLogo?: boolean;
   showAvatar?: boolean;
   userName?: string;
+  userImageUrl?: string;
   greeting?: string;
   children?: React.ReactNode;
 }
@@ -22,12 +24,17 @@ const GlobalHeader = ({
   backPath,
   showLogo = true,
   showAvatar = true,
-  userName = "Juan Pérez",
+  userName,
+  userImageUrl,
   greeting,
   children
 }: GlobalHeaderProps) => {
   const navigate = useNavigate();
   const { collapsed, toggleSidebar } = useSidebar();
+  const { user } = useAuth();
+  
+  const finalUserName = userName || (user ? `${user.first_name} ${user.last_name}` : "Usuario");
+  const finalUserImageUrl = userImageUrl || user?.photo_url;
 
   return (
     <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/50">
@@ -83,7 +90,7 @@ const GlobalHeader = ({
         {/* Right Side: Avatar and Menu Button */}
         <div className="flex items-center gap-2">
           {showAvatar && (
-            <UserAvatar name={userName} size="md" />
+            <UserAvatar name={finalUserName} imageUrl={finalUserImageUrl} size="md" />
           )}
         </div>
       </div>

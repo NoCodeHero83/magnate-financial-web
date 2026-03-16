@@ -64,6 +64,7 @@ const Profile = () => {
             name={fullName}
             subtitle={user?.email || "Usuario"}
             isVerified={isVerified}
+            imageUrl={user?.photo_url}
           />
         </section>
 

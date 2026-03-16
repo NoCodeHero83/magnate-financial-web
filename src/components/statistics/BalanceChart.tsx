@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { MoreHorizontal, TrendingUp, TrendingDown } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import {
   AreaChart,
   Area,
@@ -48,8 +48,6 @@ const BalanceChart = ({
   rangeLabel,
   lastUpdated
 }: BalanceChartProps) => {
-  const isPositive = balanceChange >= 0;
-
   // Lógica para no saturar el eje X
   const selectedInterval = useMemo(() => {
     if (data.length > 20) return Math.floor(data.length / 6);
@@ -71,15 +69,6 @@ const BalanceChart = ({
               <span className="text-4xl font-black text-foreground tracking-tight">
                 {formatBalance(currentBalance)}
               </span>
-              <div className={cn(
-                "flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full",
-                isPositive
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400"
-                  : "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400"
-              )}>
-                {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {balanceChange.toFixed(1)}%
-              </div>
             </div>
           </div>
           <button className="p-2 hover:bg-muted rounded-xl transition-colors">

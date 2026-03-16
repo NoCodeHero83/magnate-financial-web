@@ -211,13 +211,6 @@ const Login = () => {
                   "Ingresar"
                 )}
               </Button>
-              <button
-                type="button"
-                onClick={() => navigate("/forgot-password")}
-                className="text-muted-foreground hover:text-accent text-sm font-medium transition-colors"
-              >
-                ¿Olvidó su clave?
-              </button>
             </div>
 
             <p className="text-muted-foreground text-[10px] mt-8 font-medium">

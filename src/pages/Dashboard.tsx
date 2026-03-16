@@ -17,6 +17,7 @@ const Dashboard = () => {
         showLogo
         showAvatar
         userName={fullName}
+        userImageUrl={user?.photo_url}
       />
 
       {/* Greeting Section (responsive) */}
